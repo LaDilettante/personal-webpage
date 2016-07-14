@@ -82,7 +82,7 @@ author:
   keybase          :
   instagram        :
   lastfm           :
-  linkedin         :
+  linkedin         : anhqle
   pinterest        :
   soundcloud       :
   stackoverflow    : # http://stackoverflow.com/users/123456/username
@@ -141,9 +141,9 @@ incremental: false
 kramdown:
   input: GFM
   hard_wrap: true
-  auto_ids: false
+  auto_ids: true
   footnote_nr: 1
-  entity_output: as_input
+  entity_output: as_char
   toc_levels: 1..6
   smart_quotes: lsquo,rsquo,ldquo,rdquo
   enable_coderay: false
