@@ -5,22 +5,24 @@
 # For technical reasons, this file is *NOT* reloaded automatically when you use
 # `jekyll serve`. If you change this file, please restart the server process.
 
+include: ["_pages"]
+
 # Site Settings
 locale                   : "en"
-title                    : "Site Title"
+title                    : "Anh Le"
 title_separator          : "-"
-name                     : "Your Name"
-description              : "An amazing website."
-url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
-baseurl                  : # the subpath of your site, e.g. "/blog"
+name                     : "Anh Le"
+description              : "Anh Le's blog."
+url                      : people.duke.edu # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+baseurl: /~aql3 # the subpath of your site, e.g. "/blog". Keep colon close for servr::jekyll_config
 gh_repo                  :
 teaser                   : # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200
 comments:
-  provider               : # false (default), "disqus", "discourse", "facebook", "google-plus", custom"
+  provider               : "disqus" # false (default), "disqus", "discourse", "facebook", "google-plus", custom"
   disqus:
-    shortname            : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
+    shortname            : anhqle # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
   discourse:
     server               : # https://meta.discourse.org/t/embedding-discourse-comments-via-javascript/31963 , e.g.: meta.discourse.org
   facebook:
@@ -63,10 +65,10 @@ google_ad_slot           :
 
 # Site Author
 author:
-  name             : "Your Name"
+  name             : "Anh Le"
   avatar           : "bio-photo.jpg"
-  bio              : "I am an amazing person."
-  location         : "Somewhere"
+  bio              : "Social sciences, statistics, programming."
+  location         :
   email            :
   uri              :
   bitbucket        :
@@ -75,7 +77,7 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           :
+  github           : LaDilettante
   google_plus      :
   keybase          :
   instagram        :
@@ -138,10 +140,10 @@ incremental: false
 # Markdown Processing
 kramdown:
   input: GFM
-  hard_wrap: false
-  auto_ids: true
+  hard_wrap: true
+  auto_ids: false
   footnote_nr: 1
-  entity_output: as_char
+  entity_output: as_input
   toc_levels: 1..6
   smart_quotes: lsquo,rsquo,ldquo,rdquo
   enable_coderay: false
@@ -206,3 +208,24 @@ compress_html:
   clippings: all
   ignore:
     envs: development
+
+defaults:
+  # _posts
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: true
+      comments: true
+      share: true
+      related: true
+
+  # _pages
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: single
+      author_profile: true
