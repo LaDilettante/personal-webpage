@@ -1,0 +1,133 @@
+---
+title: "Gotta plot 'em all!"
+excerpt: "Cluster and visualize 151 Pokemons with Principal Component Analysis"
+---
+
+# Download 'em all
+
+While waiting for Pokemon Go to hit my region, I decided to try out the excellent [Poke API](https://pokeapi.co/). I access the API with R's `httr` package and download all the stats and sprites for the original 151 Pokemons. You can also skip this part and download the data directly from their [github](https://github.com/PokeAPI/pokeapi/tree/master/data/v2)
+
+{% highlight R %}
+rm(list = ls())
+packs <- c("httr", "ggplot2", "dplyr")
+lapply(packs, library, character.only = TRUE)
+
+# Get Gen 1 information
+rgen1 <- GET("http://pokeapi.co/api/v2/generation/1")
+cgen1 <- content(rgen1, "parsed")
+
+# Extract all species of Gen 1 into a data frame
+df_poke_gen1 <- do.call(rbind.data.frame, c(cgen1$pokemon_species, stringsAsFactors = FALSE))
+
+# We will crawl through the urls of all species, seen here in the url column
+head(df_poke_gen1)
+
+# A function to crawl through the url and extract the Pokemon and its stats
+f_getpokemon <- function(url) {
+  c_species <- content(GET(url), "parsed")
+
+  # For gen 1, there's only one variety of Pokemon per species, so we can simply extract
+  # the first element in the varieties list
+  url_pokemon <- c_species$varieties[[1]]$pokemon$url
+  c_pokemon <- content(GET(url_pokemon), "parsed")
+
+  stats <- sapply(c_pokemon$stats, function(stats) stats[["base_stat"]])
+  names(stats) <- sapply(c_pokemon$stats, function(stats) stats[["stat"]][["name"]])
+
+  for (i in seq_along(c_pokemon$types)) {
+    if (c_pokemon$types[[i]][["slot"]] == 1) {
+      type <- c_pokemon$types[[i]][["type"]][["name"]]
+    }
+  }
+
+  return(c(name = c_pokemon$name, url = url_pokemon,
+           id = c_pokemon$id, order = c_pokemon$order,
+           type = type,
+           weight = c_pokemon$weight,
+           sprite = c_pokemon$sprites$front_default,
+           as.list(stats)))
+}
+
+# Get all pokemons using the function above
+l_pokemon <- lapply(df_poke_gen1$url, f_getpokemon)
+df_pokemon <- do.call(rbind.data.frame, c(l_pokemon, stringsAsFactors = FALSE))
+df_pokemon <- df_pokemon %>% arrange(id)
+write.csv(df_pokemon, file = "pokemon_gen1.csv", row.names = FALSE)
+
+# Get all the pokemon sprites
+dir.create("pokemon_png")
+mapply(download.file,
+       url = df_pokemon$sprite,
+       destfile = paste0("pokemon_png/", df_pokemon$name, ".png"),
+       MoreArgs = list(mode = "wb"))
+{% endhighlight %}
+
+# Use Principal Component Analysis (PCA) to decompose Pokemon's stats
+
+Each Pokemon has 6 stats: HP, Attack, Defense, Speed, Special Attack, and Special Defense. To get a glimpse into how the game designer assings values to these stats, we can [use PCA to discover the latent factors that summarize these stats](http://stats.stackexchange.com/questions/2691/making-sense-of-principal-component-analysis-eigenvectors-eigenvalues).
+
+
+```{r, message=FALSE}
+packs <- c("ggplot2", "dplyr", "png", "grid")
+lapply(packs, library, character.only = TRUE)
+
+# Read in the data
+df_pokemon <- read.csv("pokemon_gen1.csv")
+
+# Run PCA on the 6 stats
+pca <- prcomp(df_pokemon[ , c("speed", "special.defense", "special.attack",
+                              "defense", "attack", "hp")])
+```
+
+Using the screeplot, which plots the variances explained on the y-axis and the number of the principal component on the x-axis. We see that the first two principal components capture about half the variances. Ideally, we would want to capture more, but for visualization purpose, I'd stick with two components for now.
+```{r, fig.align='center'}
+screeplot(pca, type = "lines")
+```
+
+How do these two components relate to the 6 original stats? To understand the meaning of these components, we can project the 6 original stats into this lower 2-dimensional space. These are shown as the red vectors in the `biplot` below.
+
+We see that all original stats point to the right side of the the Principal Component 1 (PC1). Hence, we could interpret PC1 as "Overall Strength"--the higher the value of PC1, the higher the value for all 6 stats.
+
+On the other hand, along PC2, we see that HP, Attack, and Defense point to a different direction from Speed, Special Attack, and Special Defense. Hence, we could interpret PC2 as some sort of "Brawn over Brain"--the higher the value of PC2, the higher the regular stats and the lower the value the special stats.
+```{r, fig.align = 'center'}
+biplot(pca, cex = c(0.6, 0.85), arrow.len = 0.05)
+```
+
+So here are the 151 Pokemons plotted on the space spanned by these two PCs. Mewtwo and Margikarp are, unsurprisingly, on the two extremes of the "Overall Strength" PC.
+
+```{r, fig.align = 'center', fig.height=4.5, fig.width=4.5}
+# Plot them all!
+pd <- cbind.data.frame(df_pokemon, pca$x)
+f_getImage <- function(name) {
+  rasterGrob(readPNG(paste0("pokemon_png/", name, ".png")))
+}
+f_annotate <- function(x, y, name, size) {
+  annotation_custom(f_getImage(name),
+                    xmin = x - size, xmax = x + size, 
+                    ymin = y - size, ymax = y + size)
+}
+
+f_plot <- function(pd) {
+  ggplot(data = pd, aes(x = PC1, y = PC2)) +
+    geom_text(data = pd, aes(label = name), 
+              hjust = 0.5, vjust = -1, size = 3.5, alpha = 0.5) +
+    mapply(f_annotate, x = pd$PC1, y = pd$PC2, name = pd$name, size = 10)  +
+    theme_bw() +
+    labs(x = "Overall Strength", y = "Brawn over Brain") +
+    coord_cartesian(xlim = c(-100, 120), ylim = c(-90, 90))
+}
+
+f_plot(pd)
+```
+
+The three starter Pokemons are very balanced, with Charmander having a slight edge as it evolves to Charizard.
+```{r, fig.align = 'center', fig.height=4.5, fig.width=4.5}
+f_plot(pd %>% filter(id %in% 1:9))
+```
+
+The final plot shows how Arcanine, my favorite Pokemon, rivals the Legendary birds in terms of stats. Indeed, [Arcanine was planned to be a Legendary](http://30.media.tumblr.com/tumblr_lhkx6pz3W51qdippyo1_500.png), but got changed before the game came out. Reddit has an entire thread devoted to this ["Pokemon conspiracy"](https://www.reddit.com/r/pokemonconspiracies/comments/2uu7lc/arcanine_was_meant_to_be_a_legendary/).
+
+```{r, fig.align = 'center', fig.height=4.5, fig.width=4.5}
+f_plot(pd %>% filter(name %in% c("arcanine", "moltres", "zapdos", "articuno")))
+```
+
