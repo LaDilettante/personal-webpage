@@ -95,7 +95,10 @@ What do these two principal components represent? To understand their meaning, w
 
 We see that all stats point to the right side of the the Principal Component 1 (PC1). So we could interpret PC1 as "Overall Strength"--the higher the value of PC1, the higher the value of all 6 stats.
 
-On the other hand, along PC2, we see that HP, Attack, and Defense point to a different direction from that of Speed, Special Attack, and Special Defense. So we could interpret PC2 as some sort of "Brawn over Brain"--the higher the value of PC2, the higher the regular stats and the lower the special stats.
+On the other hand, along PC2, we see that HP, Attack, and Defense point to a different direction from that of Speed, Special Attack, and Special Defense. So we could interpret PC2 as some sort of "Brawn over Brain"--the higher the value of PC2, the higher the regular stats and the lower the special stats. (NB: Regular stats, e.g. Attack and Defense affect physical moves, while special stats, e.g. Speciall Attack and Special Defense affect elemental moves.)
+
+As you can see, PC1 is pretty intuitive -- one can guess from the outset that Pokemons should vary a lot based on their overall strength. To me what's interesting is really PC2, which shows that the second most important way that Pokemons vary is along the Regular Stat-vs-Special Stat dimensions (which I call Brawn over Brain). That wasn't something I expected before the analysis.
+
 ```{r, fig.align = 'center', fig.height=4.5, fig.width=4.5}
 biplot(pca, cex = c(0.6, 0.85), arrow.len = 0.05,
        xlab = "PC1 - Overal Strength",
@@ -133,7 +136,15 @@ f_plot <- function(pd) {
 f_plot(pd)
 ```
 
-The three starter Pokemons are very balanced, with Charmander having a slight edge as it evolves to Charizard.
+One way to think about PC2 is via the classic dilemma of choosing which Psychic pokemon for your team: Hypno or Alakazam. Looking at where these Pokemons position on the graph, we can see that both have similar overall strength (with Alakazam having slightly more). But along PC2, Alakazam places at the bottom of PC2, i.e. leaning heavily towards special stats at the exense of regular stats. On the other hand, Hypno has very balanced stats. That's why lots of people choose Hypno as a robust Psychic type rather than the glass cannon that is Alakazam.
+
+```{r, fig.align = 'center', fig.height=7, fig.width=7, }
+f_plot(pd %>% filter(name %in% c("abra", "kadabra", "alakazam",
+                                 "drowzee", "hypno")))
+```
+
+The three starter Pokemons are very balanced, with Charmander having a slight edge as it evolves to Charizard. If you squint really hard, it also seems like that strongest Pokemon at the first stage (Squirtle) turns out to be weakest at the final stage (Blatoise), and vice versa for Charmander and Charizard. That's game balance design at work!
+
 ```{r, fig.align = 'center', fig.height=7, fig.width=7}
 # Plot starter Pokemons
 f_plot(pd %>% filter(id %in% 1:9))
