@@ -10,6 +10,3 @@ node_modules
 npm-debug.log*
 .Rproj.user
 .Rhistory
-
-_source/*.csv
-_source/pokemon_png
