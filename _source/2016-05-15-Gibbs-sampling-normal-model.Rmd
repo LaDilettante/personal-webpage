@@ -37,7 +37,7 @@ $$
 $$
 \begin{align}
 p(\theta | \tilde \sigma^2, Data) &= N(\mu_n, \tau^2_n) \\
-p(\tilde \sigma^2 | \theta, Data) &= Gamma(\frac{\nu_n}{2}, \frac{\nu_n \sigma_n^2(\theta)}{2})
+p(\tilde \sigma^2 | \theta, Data) &= Inverse-Gamma(\frac{\nu_n}{2}, \frac{\nu_n \sigma_n^2(\theta)}{2})
 \end{align}
 $$
 
