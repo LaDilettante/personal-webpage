@@ -8,7 +8,7 @@ excerpt: "Implements an OOP behavior in R to test MCMC code."
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The main goal of this post is to implement an OOP-like behavior in R, especially a mutable state. The motivation for this approach is to test MCMC code, but you can skip straight to the [next section](#Rimplementation) where I discuss the R implementation.
+The main goal of this post is to implement an OOP-like behavior in R, specifically a mutable state. The motivation for this approach is to test MCMC code, but you can skip straight to the [next section](#Rimplementation) where I discuss the R implementation.
 
 (If you are from Reddit, feel free to comment here or in the Reddit thread -- I'll check both.)
 
@@ -18,19 +18,18 @@ As my MCMC code grows unwieldy, I've grown increasingly paranoid about its corre
 
 1. MCMC result is stochastic, so there isn't an exact expected result to compare against
 2. MCMC code takes a long time to run, so it's not feasible to test often
-3. MCMC code involves a big loop updating each parameter, so it's hard to isolate the bug
+3. MCMC code involves a big loop updating all parameters in each pass, so it's hard to isolate the bug
 
-To debug MCMC, [Grosse & Duvenaud](https://arxiv.org/abs/1412.5218) proposes isolating the big loop into smaller functions, each drawing a new parameter value conditional on other parameters' values. We can then unit test the correctness of these functions one by one. 
+To debug MCMC, [Grosse & Duvenaud](https://arxiv.org/abs/1412.5218) propose isolating the big loop into smaller functions, each drawing a new parameter value conditional on other parameters' values. We can then unit test the correctness of these functions one by one. 
 
-Their Python implemention includes two classes: `Model`, which characterizes the model, and `State`, which stores the parameter values in the current MCMC step.
+Their Python implemention includes two classes: `Model`, which characterizes the model, and `State`, which stores the parameter values in the current MCMC pass.
 
 ```python
 class Model:
   def __init__(self, alpha, K, sigma_sq_mu_prior, sigma_sq_n_prior):
     self.alpha = alpha # Parameter for Dirichlet prior over mixture probabilities
     self.K = K # Number of components
-    self.sigma_sq_mu_prior = sigma_sq_mu_prior
-    self.sigma_sq_n_prior = sigma_sq_n_prior
+    ...
     
     def cond_pi(self, state):
       counts = np.bincount(state.z)
@@ -43,9 +42,8 @@ class State:
   def __init__(self, z, mu, sigma_sq_mu, sigma_sq_n, pi):
     self.z = z # Assignments (represented as an array of integers)
     self.mu = mu # Cluster centers
-    self.sigma_sq_mu = sigma_sq_mu # Between-cluster variance
-    self.sigma_sq_n = sigma_sq_n # Within-cluster variance
     self.pi = pi # Mixture probabilities
+    ...
 ```
 
 Using `Model`'s methods like `cond_pi`, we can draw new values in each MCMC step like so:
@@ -58,17 +56,16 @@ class Model:
     state.pi = self.cond_pi(state).sample()
     state.z = self.cond_z(state, X).sample()
     state.mu = self.cond_mu(state, X).sample()
-    state.sigma_sq_mu = self.cond_sigma_sq_mu(state).sample()
-    state.sigma_sq_n = self.cond_sigma_sq_n(state, X).sample()
+    ...
 ```
 
 # Mutable state in R {#Rimplementation}
 
-How to translate this implementation in R? Crucially, we need a *mutable state* that stores the current parameter values. While it's possible to accomplish this with S3, storing "instance variables" as elements in a list, searching for "mutable state R" leads me to [Hadley's discussion of functional programming](http://adv-r.had.co.nz/Functional-programming.html).
+How to translate this OOP implementation in R? Crucially, we need a *mutable state* that stores the current parameter values. While it's possible to accomplish this with S3, storing "instance variables" as elements in a list, searching for "mutable state R" leads me to [Hadley's discussion of functional programming](http://adv-r.had.co.nz/Functional-programming.html).
 
-It thus occurs to me that I can use functional programming to implement an OOP-like behavior. Let's say we want to create a class `Dog`, which has instance variables `name` & `speech`, getters and setters methods, and a method `bark`.
+It thus occurs to me that I can use functional programming to implement a mutable state that looks very much OOP. Take the classic OOP example of a class `Dog`, which has instance variables `name` & `speech`, getters and setters methods, and a method `bark`.
 
-The implementation using closure in functional programming looks like so:
+The implementation using functional programming looks like so.
 
 ```{r}
 dog <- function(name, speech) {
@@ -85,7 +82,7 @@ dog <- function(name, speech) {
   }
   
   # setter methods
-  set_name <- function(value) name <<- value
+  set_name <- function(value) name <<- value # Notice the "super"-assignment <<-
   set_speech <- function(value) speech <<- value
   
   # method
@@ -108,7 +105,7 @@ my_dog$get("name")
 # Make it bark
 my_dog$bark()
 
-# Change it speech
+# Change its speech
 my_dog$set_speech("roof")
 my_dog$bark()
 ```
