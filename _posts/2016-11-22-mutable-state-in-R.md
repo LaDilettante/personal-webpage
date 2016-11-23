@@ -6,9 +6,9 @@ excerpt: "Implements an OOP behavior in R to test MCMC code."
 
 
 
-The main goal of this post is to implement an OOP-like behavior in R, especially a mutable state. The motivation for this approach is to test MCMC code, but you can skip straight to the next paragraph where I discuss the R implementation.
+The main goal of this post is to implement an OOP-like behavior in R, especially a mutable state. The motivation for this approach is to test MCMC code, but you can skip straight to the [next section](#Rimplementation) where I discuss the R implementation.
 
-(If you are from Reddit, feel free to comment here or in the Reddit thread -- I'll monitor both for your insights!)
+(If you are from Reddit, feel free to comment here or in the Reddit thread -- I'll check both.)
 
 # Motivation
 
@@ -60,7 +60,7 @@ class Model:
     state.sigma_sq_n = self.cond_sigma_sq_n(state, X).sample()
 ```
 
-# Mutable state in R
+# Mutable state in R {#Rimplementation}
 
 How to translate this implementation in R? Crucially, we need a *mutable state* that stores the current parameter values. While it's possible to accomplish this with S3, storing "instance variables" as elements in a list, searching for "mutable state R" leads me to [Hadley's discussion of functional programming](http://adv-r.had.co.nz/Functional-programming.html).
 
@@ -139,6 +139,6 @@ my_dog$bark()
 ## [1] "roof!"
 {% endhighlight %}
 
-It feels very weird to me that functional programming can be used to accomplish an OOP-like behavior like this, which actually looks closer to classic OOP than R's class system. 
+I really like how the `object$method()` syntax of this approach looks similar to `object.method()` in traditional OOP language. Indeed, this looks much more familiar than R's class system.
 
-I did successfully using this approach to test my MCMC code. But should I? I can't get over how weird this looks.
+Still, it feels very weird to me that functional programming can be used to accomplish an OOP-like behavior like this. I did successfully using this approach to test my MCMC code. But should I? Is there any drawback to this approach?
