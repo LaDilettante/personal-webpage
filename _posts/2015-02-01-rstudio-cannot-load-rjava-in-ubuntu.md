@@ -4,7 +4,7 @@ excerpt:   "I encounter this problem whenever I try to use rJava on Ubuntu + Rst
 date:       2015-02-01 12:00:00
 ---
 
-I encounter this problem whenever I try to use rJava on Ubuntu + Rstudio, so I decided to write it down.
+I encounter this problem whenever I try to use `rJava` on Ubuntu + Rstudio, so I decided to write it down.
 
 You'll see this error message if you try to load the `rJava` package or anything else that depends on it (`psData` in my case):
 
@@ -23,14 +23,16 @@ A wrinke: If we set `LD_LIBRARY_PATH` in `/etc/environment`, `library(rjava)` ca
 
 **The upshot**: Set `LD_LIBRARY_PATH` in `~/.profile` to make it available to all desktop applications, including Rstudio (as suggested by [Ubuntu wiki article on persistent environment variable](https://help.ubuntu.com/community/EnvironmentVariables#Persistent_environment_variables)).
 
-Inside `~/.profile`, add the path to `libjvm.so` to `LD_LIBRARY_PATH` (you may have a different path from mine):
+**Instructions**:
+
+- Inside `~/.profile`, add the path to `libjvm.so` to `LD_LIBRARY_PATH` (you may have a different path from mine):
+
 {% highlight bash %}
 export LD_LIBRARY_PATH=/usr/lib/jvm/java-7-oracle/lib/amd64:/usr/lib/jvm/java-7-oracle/jre/lib/amd64/server
 {% endhighlight %}
 
-Log out and in or restart your computer so that Ubuntu reloads `~/.profile`. 
-
-Then make R update its java configuration:
+- Log out and in or restart your computer so that Ubuntu reloads `~/.profile`. 
+- Then make R update its java configuration:
 
 {% highlight bash %}
 sudo R CMD javareconf
