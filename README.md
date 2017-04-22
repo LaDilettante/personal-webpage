@@ -28,6 +28,7 @@ To learn how to install and use this theme check out the [Setup Guide](http://mm
 - `gem install github-pages` if jekyll is not set up
 - Go to `/media/aql3/personal-webpage`, `git pull`
 - `jekyll build`
+- `cd ..`
 - `sudo rsync -av personal-webpage/_site/ public_html/` (a = all, v = verbose)
 
 ### Some commands to remember
