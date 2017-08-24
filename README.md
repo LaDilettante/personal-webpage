@@ -24,6 +24,10 @@ To learn how to install and use this theme check out the [Setup Guide](http://mm
 
 ## Anh Le's modifications
 
+### Setting up
+- `bundle update`
+- `bundle clean --force` if necessary
+
 ### Copy to server
 - `gem install github-pages` if jekyll is not set up
 - Go to `/media/aql3/personal-webpage`, `git pull`
