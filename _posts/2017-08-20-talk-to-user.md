@@ -6,7 +6,7 @@ This summer, I worked at [Civis Analytics](https://www.civisanalytics.com/), a s
 
 One of the challenge was to design an IO scheme that accommodates the many ways an user interact with the platform. On users' laptops, data can be binary files and CSV on disk, or R data frame and other R objects in memory. On Civis' platform, data can live in an Amazon Redshift database or a Amazon S3 file storage. Our users want to move data between any two of these destinations, *and* they want the option of doing so with their trusty SQL. Because of this complexity, our old IO scheme proliferated into 17 functions, with confusing names like `csv_to_civis`, `civis_to_csv`, `dataframe_to_civis`, `read_civis`, `read_civis_sql`, etc. In contrast, our new IO scheme has only 5 functions that preserve all functionalities.
 
-During the design process, I interviewed our in-house data scientists for their feedback [^1]. To prepare, I scoured the Internet for articles on UX interviews, most of which geared towards consumer-grade web design unfortunately. While the principles hold true, many tactics do not take into account the sense and sensibility of our deeply technical users. Below is how I molded those principles into tactics for interviewing technical users for statistical software.
+During the design process, I interviewed our in-house data scientists for their feedback. To prepare, I scoured the Internet for articles on UX interviews, most of which geared towards consumer-grade web design unfortunately. While the principles hold true, many tactics do not take into account the sense and sensibility of our deeply technical users. Below is how I molded those principles into tactics for interviewing technical users for statistical software.
 
 ### 1. Watch your users use your software
 
@@ -20,7 +20,9 @@ During this exercise, I noted down two signs of confusion: either 1) the user gu
 
 Everyone hates admitting to being confused, especially technical users who take pride in being quick learners. And yet these moments of confusion are when we learn the most about where our software is lacking! To make the users comfortable, at every step of the interview I put the onus of being wrong on me, not the user.
 
-At the beginning, set the tone with "Thank you for your time -- your feedback is really important to us. There are many design issues that our team is still debating internally. (*Note: This communicates that the design is very much in flux and their feedback will have a real impact.*) Please do tell me your first impression on any part of the design. If there is anything that is not immediately clear, that is on us to make it better. (*Note: This puts the onus of getting things right on the design team, not the users*)."
+At the beginning, set the tone with 
+
+> Thank you for your time -- your feedback is really important to us. There are many design issues that our team is still debating internally. (*Note: This communicates that the design is very much in flux and their feedback will have a real impact.*) Please do tell me your first impression on any part of the design. If there is anything that is not immediately clear, that is on us to make it better. (*Note: This puts the onus of getting things right on the design team, not the users*).
 
 During the interview, don't follow up with what users say with "How so?" Instead, use a more welcoming tone: "That's really interesting. Tell me more about your thought process."
 
@@ -36,14 +38,12 @@ For simple processes such as checking out an online shopping cart, the only goal
 
 In contrast, good statistical software not only lets the user do what they want now, but also empowers them to do things they have not envisioned before. For this reason, near the end of the interview, I walked the users through design rationales that have non-obvious benefits. 
 
-For example, while uploading R data frame to Amazon S3, we can either upload it as a CSV or as a binary R object. When asked, users invariably said they wanted CSV, which was the familiar way of doing things. I then engaged the user in thinking about the trade-off: yes, a CSV is more familiar, but it does not preserve the metadata, e.g. a data frame column types. Upon reflection, all users agreed that uploading a binary R object would be the better choice, albeit not being the more obvious.
+For example, while uploading R data frame to Amazon S3, we can either upload it as a CSV or as a binary R object. When asked, users invariably said they wanted CSV, which was the familiar way of doing things. I then engaged the user in thinking about the trade-off: yes, a CSV is more familiar, but it does not preserve the metadata, e.g. a data frame column types. *Then I stopped and let the users form their independent opinions*. Upon reflection, all users agreed that uploading a binary R object would be the better choice, albeit not being the more obvious.
 
 ### 5. Structure your report back to the team around decision points
 
-Because interviews with technical users can get deep in the weeds, you want to synthesize the information into actionable items for your team to decide. The most helpful structure is to summarize the data in a table with the rows being specific, ideally binary, design choices (e.g. upload CSV or data frames), and the columns being the users' preference. Typically, [you won't need to interview more than 5 users](https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/), so this table should be compact enough to give an actionable overview.
+Because interviews with technical users can get deep in the weeds, you want to synthesize the information into actionable items for your team to decide. I find it most helpful to summarize users' preference in a table with the columns being the users, and the rows being specific, ideally binary, design choices (e.g. upload CSV or data frames). Typically, [you won't need to interview more than 5 users](https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/), so this table should be compact enough to give an actionable overview.
 
 Then, I often have a free form paragraph summarizing users' rationale behind their preference, or features that they suggest. When our users are technical experts, we do want to take advantage of their design suggestions.
 
-And that was my experience doing user interview for statistical software. The [R client we developed is now open-sourced](https://github.com/civisanalytics/civis-r), and you can see the [IO scheme I've been talking about here](https://github.com/civisanalytics/civis-r/blob/master/R/io.R)!
-
-[^1]: Civis Analytics has both a department writing softwares for data scientists, and a department of applied data scientists doing consulting works for businesses and organizations.
+And that was my experience doing user interview for statistical software! The [R client we developed is now open-sourced](https://github.com/civisanalytics/civis-r), and you can see the [IO scheme I've been talking about here](https://github.com/civisanalytics/civis-r/blob/master/R/io.R).
