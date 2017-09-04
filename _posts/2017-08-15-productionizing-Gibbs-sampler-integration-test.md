@@ -118,7 +118,7 @@ prior = {'mu_0': 0, 'tau2_0': 10000, 'nu_0': 1, 'sigma2_0': 1}
 samples_gibbs_simple = gibbs_simple(1000, y, prior)
 ```
 
-We can inspect the result visually, checking that the posterior distributions (the black density plot) covers the true parameter values (the red line).
+We can inspect the result visually, checking that the posterior distributions (the black density plot) cover the true parameter values (the red line).
 
 
 ```python
@@ -175,3 +175,4 @@ assert np.allclose(samples_gibbs_simple['sigma2'].mean(), true_sigma2, rtol=0.99
 ```
 
 The integration test "works," but suffers from several drawbacks. First, the integration test can be misleading because it relies on checking a "close enough" result. Second, the integration test is slow because it has to generate the posterior sample each time. In [Part 2]({{ site.baseurl }}{% post_url 2017-08-16-productionizing-Gibbs-sampler-unit-test %}), I will discuss how to avoid these problems with a modular Gibbs sampler that can be unit-tested.
+

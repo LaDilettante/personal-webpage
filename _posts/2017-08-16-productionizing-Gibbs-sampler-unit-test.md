@@ -21,17 +21,17 @@ $$
 \end{align}
 $$
 
-where \\(\theta_1, \theta_2\\) are two arbitrary values of $\theta$.
+where \\(\theta_1, \theta_2\\) are two arbitrary values of \\(\theta\\).
 
 This identity is perfect for a unit test for three reasons:
 - The identity must hold *exactly*, so we don't rely on testing "close enough" behavior.
 - The identity must hold for any two arbitrary values of \\(\theta\\), so mocking and setting up is minimal.
-- The right hand side contains only terms that are easy to derive. Specifically, \\(p(\theta)\\) is the prior, which is whatever the distribution we choose. \\(p(x \| \theta)\\) is the likelihood, which comes directly from the model with no extra work.
+- The right-hand side contains only terms that are easy to derive. Specifically, \\(p(\theta)\\) is the prior, which is whatever the distribution we choose. \\(p(x \| \theta)\\) is the likelihood, which comes directly from the model with no extra work.
 
 To facilitate unit testing, we modularize the Gibbs sampler as follows. First, we have a `State` class that contains the current state of the parameters.
 
 
-```
+```python
 import numpy as np
 import scipy.stats
 
@@ -44,7 +44,7 @@ class State(object):
 Second, we have a `Model` class that describes the model.
 
 
-```
+```python
 class Model(object):
     def __init__(self, theta_prior, sigma2_prior, rng=None):
         self.theta_prior = theta_prior
@@ -87,7 +87,7 @@ class Model(object):
 We can then test the identity above as follows. Note the use of `pytest`'s fixture to DRY. We randomize our model, state, and data to be extra sure that our Gibbs sampler is always correct.
 
 
-```
+```python
 import pytest
 import copy
 
@@ -140,7 +140,7 @@ The modular Gibbs sampler is very legible and easy to test. However, due to vari
 This way, we get the best of both worlds. Below I show how to carry out step (3), checking the no-frill Gibbs against the modular Gibbs.
 
 
-```
+```python
 # Generate the data from known parameters
 true_theta = 2
 true_sigma2 = 3.5
@@ -151,7 +151,7 @@ prior = {'mu_0': 10, 'tau2_0': 10000, 'nu_0': 1, 'sigma2_0': 10}
 ```
 
 
-```
+```python
 # Run the modular Gibbs and store its result
 class Storage(object):
     def __init__(self, S=0):
@@ -178,7 +178,7 @@ for i in range(1, 2):
 ```
 
 
-```
+```python
 # Run the no-frill Gibbs and store its result
 def gibbs_simple(S, y, prior, rng=None):
     """
@@ -221,7 +221,7 @@ samples_gibbs_simple = gibbs_simple(2, y, prior, rng=42)
 ```
 
 
-```
+```python
 assert np.allclose(samples_gibbs_simple['theta'], samples_gibbs_modular.theta)
 assert np.allclose(samples_gibbs_simple['sigma2'], samples_gibbs_modular.sigma2)
 ```
@@ -239,7 +239,7 @@ In our MCMC code, we frequently need to compute functions of our parameters. For
 To create an instance variable (i.e. `sigma`) that is a function of another instance variable (i.e. `sigma2`), we take advantage of Python's `@property` decorator as follows.
 
 
-```
+```python
 class State(object):
     def __init__(self, sigma2):
         self.sigma2 = sigma2
@@ -256,7 +256,7 @@ class State(object):
 We can set the value of `sigma2` ...
 
 
-```
+```python
 my_state = State(sigma2 = 0.5 ** 2)
 print("sigma2: {}".format(my_state.sigma2))
 ```
@@ -267,7 +267,7 @@ print("sigma2: {}".format(my_state.sigma2))
 ... and `sigma` and `tau` will be automatically available
 
 
-```
+```python
 print("sigma:  {}".format(my_state.sigma))
 print("tau:    {}".format(my_state.tau))
 ```
@@ -283,7 +283,7 @@ A lot of the times `scipy.stats` distributions don't have the parameterization t
 In these cases, I like to wrap the `scipy.stats` distributions in a class so that I can pick my own parameterization and naming convention. For example, I wrap the Gamma distribution as follows:
 
 
-```
+```python
 class GammaDist(object):
     def __init__(self, shape, rate, rng=None):
         self.shape = shape
@@ -297,7 +297,7 @@ class GammaDist(object):
 This way, in my code I can draw a new sample as:
 
 
-```
+```python
 my_gamma = GammaDist(1, 2)
 my_gamma.rvs()
 ```
@@ -312,3 +312,4 @@ my_gamma.rvs()
 Furthermore, I can also easily refer to the Gamma hyperparameters as `my_gamma.shape` and `my_gamma.rate`, which is more legible than `scipy_gamma.kwds['a']` and `1 / scipy_gamma.kwds['scale']`.
 
 [^1]: We obtain this identity by multiplying both the numerator and the denominator with \\( p(x) \\)
+
